@@ -1,0 +1,25 @@
+//variables de colores
+$bone: #F5F0E8;
+$black:#1A1A1A;
+$gray-light: #E0DCD3;
+$gray-dark: #4A4A4A;
+
+//reset basico
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: $bone;
+    color: $black;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
