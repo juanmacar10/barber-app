@@ -23,3 +23,23 @@ body {
     margin: 0 auto;
     padding: 0 1.5rem;
 }
+
+
+//responsive desing
+// Móviles (pantallas menores a 768px)
+@media (max-width: 768px) {
+  .container {
+    padding: 0 1rem;
+  }
+  
+  body {
+    font-size: 14px; // texto ligeramente más pequeño pero legible
+  }
+}
+
+// Tablets (entre 768px y 1024px)
+@media (min-width: 768px) and (max-width: 1024px) {
+  .container {
+    padding: 0 2rem;
+  }
+}
