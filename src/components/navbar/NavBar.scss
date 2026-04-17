@@ -35,12 +35,12 @@
             transition: color 0.2s;
 
             &:hover {
-                color: darken($bone, 30%);
+                color: $link-active;
             }
 
             &.__active {
-                color: darken($bone, 40%);
-                border-bottom: 2px solid $bone;
+                color: $link-active;
+                border-bottom: 2px solid $link-active;
             }
         }
     }
