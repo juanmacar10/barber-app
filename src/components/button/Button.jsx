@@ -1,7 +1,6 @@
-import { Children } from 'react'
 import './Button.scss'
 
-export const Button = ({ variant = 'primary', onClick, type = 'button', disabled = false }) => {
+export const Button = ({ children, variant = 'primary', onClick, type = 'button', disabled = false }) => {
   return (
     <button 
         className={`btn btn--${variant}`}
@@ -9,7 +8,7 @@ export const Button = ({ variant = 'primary', onClick, type = 'button', disabled
         type={type}
         disabled={disabled}    
     >
-        {Children}
+        {children}
     </button>
   )
 }

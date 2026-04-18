@@ -1,3 +1,4 @@
+import './Input.scss'
 
 export const Input = ({ label, type = 'text', value, onChange, placeholder, required = false }) => {
   return (
