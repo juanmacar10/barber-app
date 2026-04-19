@@ -35,6 +35,7 @@ export const LoginPage = () => {
       <form onSubmit={handleSubmit}>
         <Input
           label='correo electronico'
+          name='email'
           type='email'
           value={email}
           onChange={(e) => setEmail(e.target.value)}
@@ -43,6 +44,7 @@ export const LoginPage = () => {
         />
         <Input
           label='contraseña'
+          name='password'
           type='password'
           value={password}
           onChange={(e) => setPassword(e.target.value)}
