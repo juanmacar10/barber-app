@@ -3,32 +3,27 @@ import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { Input } from '../../components/input/Input';
 import { Button } from '../../components/button/Button';
+import './BookingPage.scss'; // importamos estilos
 
 export const BookingPage = () => {
-  const PRECIO_BASE = 10000; // 10k COP
-  const PRECIO_ADICIONAL = 2000;   // 2k por la reserva
+  const PRECIO_BASE = 10000;
+  const PRECIO_ADICIONAL = 2000;
   const total = PRECIO_BASE + PRECIO_ADICIONAL;
 
   const [formData, setFormData] = useState({
     nombre: '',
     telefono: '',
-    servicio: 'corte',   // solo corte por ahora
+    servicio: 'corte', 
     fecha: '',
-    hora: '',
-    vip: false
+    hora: ''
   });
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
 
   const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
-    }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
-
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,38 +39,33 @@ export const BookingPage = () => {
 
     try {
       const reserva = {
-        nombre: formData.nombre,
-        telefono: formData.telefono,
-        servicio: formData.servicio,
-        fecha: formData.fecha,
-        hora: formData.hora,
-        vip: formData.vip,
+        ...formData,
         precio: total,
         estado: 'pendiente',
         createdAt: new Date()
       };
       await addDoc(collection(db, 'reservas'), reserva);
-      setSuccess('Reserva creada exitosamente');
+      setSuccess('✅ Reserva creada exitosamente');
       setFormData({
         nombre: '',
         telefono: '',
         servicio: 'corte',
         fecha: '',
-        hora: '',
-        vip: false
+        hora: ''
       });
     } catch (err) {
       console.error(err);
-      setError('Error al guardar la reserva');
+      setError('❌ Error al guardar la reserva');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="container" style={{ paddingTop: '3rem', maxWidth: '600px' }}>
+    <div className="container booking-page">
       <h1>Reservar cita</h1>
-      <form onSubmit={handleSubmit}>
+
+      <form onSubmit={handleSubmit} className="booking-form">
         <Input
           label="Nombre completo"
           name="nombre"
@@ -103,19 +93,15 @@ export const BookingPage = () => {
             className="input-group__field"
             required
           >
-            <option value="corte">Corte de cabello - $10,000</option>
+            <option value="corte">Corte de cabello</option>
           </select>
         </div>
 
-        <div style={{ margin: '1rem 0', padding: '0.5rem', background: '#f0f0f0', borderRadius: '8px' }}>
+        <div className="price-info">
           <p><strong>Precio del corte:</strong> $10,000 COP</p>
           <p><strong>Cargo por reserva / VIP:</strong> +$2,000 COP</p>
           <p><strong>Total a pagar:</strong> ${total.toLocaleString('es-CO')} COP</p>
-          <small style={{ color: '#666' }}>Este cargo no es opcional.</small>
-        </div>
-
-        <div style={{ margin: '1rem 0', padding: '0.5rem', background: '#f0f0f0', borderRadius: '8px' }}>
-          <strong>Total a pagar: ${total.toLocaleString('es-CO')} COP</strong>
+          <small>Este cargo no es opcional. Incluye beneficios especiales.</small>
         </div>
 
         <Input
@@ -137,8 +123,11 @@ export const BookingPage = () => {
           required
         />
 
-        {error && <p style={{ color: 'red', marginBottom: '1rem' }}>{error}</p>}
-        {success && <p style={{ color: 'green', marginBottom: '1rem' }}>{success}</p>}
+        <div className="messages">
+          {error && <div className="error">{error}</div>}
+          {success && <div className="success">{success}</div>}
+        </div>
+
         <Button type="submit" disabled={loading}>
           {loading ? 'Guardando...' : 'Reservar'}
         </Button>
