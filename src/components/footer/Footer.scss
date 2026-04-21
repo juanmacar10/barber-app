@@ -1,0 +1,67 @@
+@use '../../styles/global.scss' as *;
+
+.footer {
+    background-color: $black;
+    color: $bone;
+    padding: 1.5rem 0;
+    margin-top: 3rem;
+    border-top: 1px solid rgba($bone, 0.2);
+
+    &__container {
+        width: 100%;
+    }
+
+    &__content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    &__info {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        font-size: 0.9rem;
+        flex-wrap: wrap;
+    }
+
+    &__link {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: $bone;
+        text-decoration: none;
+        transition: opacity 0.2s;
+        font-weight: 500;
+
+        &:hover {
+            opacity: 0.8;
+        }
+    }
+
+    &__avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 1px solid $bone;    
+    }
+
+    &__copyright {
+        font-size: 0.8rem;
+        opacity: 0.7;
+    }
+
+    @media (max-width: 768px) {
+        &__content {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        &__info {
+            justify-content: center;
+        }
+    }
+}

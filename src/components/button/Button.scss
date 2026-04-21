@@ -18,13 +18,13 @@
         }
     }
 
-    &--secundary {
-        background-color: transparent;
+    &--secondary {
+        background-color: $gray-light;
         color: $black;
-        border: 1px solid $black;
 
         &:hover {
-            background-color: $gray-light;
+            background-color: $black;
+            color: white;
         }
     }
 }

@@ -3,7 +3,7 @@ import { addDoc, collection } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { Input } from '../../components/input/Input';
 import { Button } from '../../components/button/Button';
-import './BookingPage.scss'; // importamos estilos
+import './BookingPage.scss';
 
 export const BookingPage = () => {
   const PRECIO_BASE = 10000;

@@ -25,6 +25,25 @@ body {
     padding: 0 1.5rem;
 }
 
+// Estilos para hacer que el footer esté siempre en la parte inferior
+html,
+body {
+  height: 100%;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  flex: 1;
+}
+
 
 //responsive desing
 // Móviles (pantallas menores a 768px)
