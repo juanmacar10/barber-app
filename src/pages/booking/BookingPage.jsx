@@ -10,13 +10,21 @@ export const BookingPage = () => {
   const PRECIO_ADICIONAL = 2000;
   const total = PRECIO_BASE + PRECIO_ADICIONAL;
 
-  // Calcular fechas mínima (hoy) y máxima (mañana)
+  // Fechas mínima (hoy) y máxima (mañana)
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
-
   const minDate = today.toISOString().split('T')[0];
   const maxDate = tomorrow.toISOString().split('T')[0];
+
+  // Calcular hora mínima para hoy (actual + 30 minutos)
+  const getMinTimeForToday = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 30);
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    return `${hours}:${minutes}`;
+  };
 
   const [formData, setFormData] = useState({
     nombre: '',
@@ -33,6 +41,15 @@ export const BookingPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Calcular el mínimo de hora según la fecha seleccionada
+  const getMinTime = () => {
+    if (!formData.fecha) return undefined;
+    if (formData.fecha === minDate) {
+      return getMinTimeForToday();
+    }
+    return undefined; // mañana sin restricción
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -45,11 +62,21 @@ export const BookingPage = () => {
       return;
     }
 
-    // Validar que la fecha esté entre hoy y mañana
+    // Validar fecha (solo hoy o mañana)
     if (formData.fecha < minDate || formData.fecha > maxDate) {
       setError(`Solo puedes reservar para hoy (${minDate}) o mañana (${maxDate})`);
       setLoading(false);
       return;
+    }
+
+    // Validar hora si la fecha es hoy
+    if (formData.fecha === minDate) {
+      const minTime = getMinTimeForToday();
+      if (formData.hora < minTime) {
+        setError(`Para hoy, solo puedes reservar a partir de las ${minTime} (margen de 30 minutos).`);
+        setLoading(false);
+        return;
+      }
     }
 
     try {
@@ -81,7 +108,7 @@ export const BookingPage = () => {
       <h1>Reservar cita</h1>
 
       <div className="info-message">
-        ℹ️ Solo puedes reservar para <strong>hoy o mañana</strong>. Por favor, elige una fecha dentro de ese rango.
+        ℹ️ Solo puedes reservar para <strong>hoy o mañana</strong>. Para hoy, la hora debe ser al menos 30 minutos después de la hora actual.
       </div>
 
       <form onSubmit={handleSubmit} className="booking-form">
@@ -129,9 +156,9 @@ export const BookingPage = () => {
           type="date"
           value={formData.fecha}
           onChange={handleChange}
-          min={minDate}   // fecha mínima: hoy
-          max={maxDate}   // fecha máxima: mañana
           placeholder="2025-10-25"
+          min={minDate}
+          max={maxDate}
           required
         />
         <Input
@@ -141,6 +168,7 @@ export const BookingPage = () => {
           value={formData.hora}
           onChange={handleChange}
           placeholder="10:00"
+          min={getMinTime()}
           required
         />
 
