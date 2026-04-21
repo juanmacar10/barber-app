@@ -10,10 +10,18 @@ export const BookingPage = () => {
   const PRECIO_ADICIONAL = 2000;
   const total = PRECIO_BASE + PRECIO_ADICIONAL;
 
+  // Calcular fechas mínima (hoy) y máxima (mañana)
+  const today = new Date();
+  const tomorrow = new Date(today);
+  tomorrow.setDate(today.getDate() + 1);
+
+  const minDate = today.toISOString().split('T')[0];
+  const maxDate = tomorrow.toISOString().split('T')[0];
+
   const [formData, setFormData] = useState({
     nombre: '',
     telefono: '',
-    servicio: 'corte', 
+    servicio: 'corte',
     fecha: '',
     hora: ''
   });
@@ -37,6 +45,13 @@ export const BookingPage = () => {
       return;
     }
 
+    // Validar que la fecha esté entre hoy y mañana
+    if (formData.fecha < minDate || formData.fecha > maxDate) {
+      setError(`Solo puedes reservar para hoy (${minDate}) o mañana (${maxDate})`);
+      setLoading(false);
+      return;
+    }
+
     try {
       const reserva = {
         ...formData,
@@ -45,7 +60,7 @@ export const BookingPage = () => {
         createdAt: new Date()
       };
       await addDoc(collection(db, 'reservas'), reserva);
-      setSuccess('✅ Reserva creada exitosamente, recibiras un mensaje de confirmación por WhatsApp');
+      setSuccess('✅ Reserva creada exitosamente, recibirás un mensaje de confirmación por WhatsApp');
       setFormData({
         nombre: '',
         telefono: '',
@@ -64,6 +79,10 @@ export const BookingPage = () => {
   return (
     <div className="container booking-page">
       <h1>Reservar cita</h1>
+
+      <div className="info-message">
+        ℹ️ Solo puedes reservar para <strong>hoy o mañana</strong>. Por favor, elige una fecha dentro de ese rango.
+      </div>
 
       <form onSubmit={handleSubmit} className="booking-form">
         <Input
@@ -110,7 +129,9 @@ export const BookingPage = () => {
           type="date"
           value={formData.fecha}
           onChange={handleChange}
-          placeholder="2025-10-20"
+          min={minDate}   // fecha mínima: hoy
+          max={maxDate}   // fecha máxima: mañana
+          placeholder="2025-10-25"
           required
         />
         <Input
