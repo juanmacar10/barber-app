@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { useNavigate } from 'react-router-dom';
-import { formatTo12Hour } from '../../utils/formatTime'; // 👈 importar
+import { formatTo12Hour } from '../../utils/formatTime'; 
 import './HomePage.scss';
 
 export const HomePage = () => {
