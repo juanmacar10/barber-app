@@ -93,11 +93,9 @@ export const HomePage = () => {
           </div>
         )}
         <div className="message emergency">
-          ⏱️ <strong>Información importante:</strong> Los cortes tienen una duración aproximada de <strong>40 a 50 minutos</strong>. Por favor, considera este tiempo al reservar.
+          ⏱️ <strong>Información importante:</strong> Los cortes tienen una duración aproximada de <strong>50min a 1h</strong>. Por favor, considera este tiempo al reservar.
         </div>
-        <div className="message">
-          ℹ️ <strong>Nota informativa:</strong> Las horas mostradas ya están reservadas. Por favor, elige una hora diferente en el formulario de reserva.
-        </div>
+        
       </div>
       <button className="reserve-now-btn" onClick={() => navigate('/reservar')}>
         ✂️ Reservar ahora ✂️
