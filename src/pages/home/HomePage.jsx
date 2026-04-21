@@ -1,14 +1,13 @@
 import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../services/firebase';
-import './HomePage.scss';
 import { useNavigate } from 'react-router-dom';
+import { formatTo12Hour } from '../../utils/formatTime'; // 👈 importar
+import './HomePage.scss';
 
 export const HomePage = () => {
-  //hook de navegación
   const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(() => {
-    // Fecha actual en formato YYYY-MM-DD
     const today = new Date();
     return today.toISOString().split('T')[0];
   });
@@ -19,7 +18,6 @@ export const HomePage = () => {
     const fetchReservations = async () => {
       setLoading(true);
       try {
-        // Consultar reservas para la fecha seleccionada (solo pendientes y confirmadas)
         const q = query(
           collection(db, 'reservas'),
           where('fecha', '==', selectedDate),
@@ -27,7 +25,6 @@ export const HomePage = () => {
         );
         const querySnapshot = await getDocs(q);
         const hours = querySnapshot.docs.map(doc => doc.data().hora);
-        // Eliminar duplicados y ordenar
         const uniqueHours = [...new Set(hours)].sort();
         setBusyHours(uniqueHours);
       } catch (error) {
@@ -36,9 +33,12 @@ export const HomePage = () => {
         setLoading(false);
       }
     };
-
     fetchReservations();
   }, [selectedDate]);
+
+  // Separar horas AM y PM
+  const morningHours = busyHours.filter(hour => hour < "12:00");
+  const afternoonHours = busyHours.filter(hour => hour >= "12:00");
 
   return (
     <div className="container home-page">
@@ -61,16 +61,35 @@ export const HomePage = () => {
         {loading ? (
           <p>Cargando...</p>
         ) : (
-          <div className="busy-hours">
-            {busyHours.length === 0 ? (
-              <span className="no-hours">✅ No hay reservas aún para esta fecha</span>
-            ) : (
-              busyHours.map(hour => (
-                <span key={hour} className="hour-badge">
-                  🕒 {hour}
-                </span>
-              ))
-            )}
+          <div className="hours-split">
+            <div className="hours-column">
+              <h4>🌅 Mañana</h4>
+              <div className="busy-hours">
+                {morningHours.length === 0 ? (
+                  <span className="no-hours">✅ Sin reservas</span>
+                ) : (
+                  morningHours.map(hour => (
+                    <span key={hour} className="hour-badge">
+                      🕒 {formatTo12Hour(hour)}
+                    </span>
+                  ))
+                )}
+              </div>
+            </div>
+            <div className="hours-column">
+              <h4>🌙 Tarde</h4>
+              <div className="busy-hours">
+                {afternoonHours.length === 0 ? (
+                  <span className="no-hours">✅ Sin reservas</span>
+                ) : (
+                  afternoonHours.map(hour => (
+                    <span key={hour} className="hour-badge">
+                      🕒 {formatTo12Hour(hour)}
+                    </span>
+                  ))
+                )}
+              </div>
+            </div>
           </div>
         )}
         <div className="message emergency">

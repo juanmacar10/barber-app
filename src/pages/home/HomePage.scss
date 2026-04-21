@@ -125,3 +125,53 @@
         box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 }
+
+
+
+
+//horarios
+.hours-split {
+    display: flex;
+    gap: 2rem;
+    margin-top: 1rem;
+    flex-wrap: wrap;
+
+    .hours-column {
+        flex: 1;
+        min-width: 200px;
+
+        h4 {
+            margin-bottom: 0.75rem;
+            font-size: 1rem;
+            color: $black;
+            font-weight: 600;
+        }
+    }
+}
+
+.busy-hours {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+
+    .hour-badge {
+        background-color: #fee2e2;
+        color: #991b1b;
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .no-hours {
+        color: $gray-dark;
+        font-style: italic;
+    }
+}
+
+@media (max-width: 768px) {
+    .hours-split {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}

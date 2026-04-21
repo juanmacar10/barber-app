@@ -5,19 +5,19 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../services/firebase';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/button/Button';
+import { formatTo12Hour } from '../../utils/formatTime'; 
 import './AdminPage.scss';
 
 export const AdminPage = () => {
   const [reservas, setReservas] = useState([]);
-  const [activeTab, setActiveTab] = useState('citas'); // 'citas' o 'estadisticas'
-  const [filter, setFilter] = useState('pendiente'); // 👈 CAMBIADO: ahora muestra pendientes por defecto
+  const [activeTab, setActiveTab] = useState('citas');
+  const [filter, setFilter] = useState('pendiente');
   const [selectedMonth, setSelectedMonth] = useState(() => {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   });
   const navigate = useNavigate();
 
-  // Escuchar reservas en tiempo real
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'reservas'), (snapshot) => {
       const reservasData = snapshot.docs.map(doc => ({
@@ -29,7 +29,6 @@ export const AdminPage = () => {
     return () => unsubscribe();
   }, []);
 
-  // Calcular estadísticas mensuales
   const monthStats = useMemo(() => {
     const [year, month] = selectedMonth.split('-');
     const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
@@ -37,26 +36,27 @@ export const AdminPage = () => {
     const startStr = startDate.toISOString().split('T')[0];
     const endStr = endDate.toISOString().split('T')[0];
 
-    const confirmedInMonth = reservas.filter(r => 
+    const confirmedInMonth = reservas.filter(r =>
       r.estado === 'confirmada' && r.fecha >= startStr && r.fecha <= endStr
     );
     const count = confirmedInMonth.length;
-    const gananciaBarbero = count * 11000; // 11k por corte
+    const gananciaBarbero = count * 11000;
     return { count, commission: count * 1000, gananciaBarbero };
   }, [selectedMonth, reservas]);
 
   const sendWhatsApp = (reserva, nuevoEstado) => {
     const { telefono, nombre, servicio, fecha, hora, precio } = reserva;
+    const horaFormateada = formatTo12Hour(hora); // 👈 formato 12h para el mensaje
     const numeroLimpio = telefono.replace(/\D/g, '');
     const numeroConCodigo = numeroLimpio.startsWith('57') ? numeroLimpio : `57${numeroLimpio}`;
-    
+
     let mensaje = '';
     if (nuevoEstado === 'confirmada') {
-      mensaje = `Hola ${nombre}, tu reserva para ${servicio} el día ${fecha} a las ${hora} ha sido CONFIRMADA. Valor total: $${precio?.toLocaleString('es-CO')} COP. ¡Te esperamos!`;
+      mensaje = `Hola ${nombre}, tu reserva para ${servicio} el día ${fecha} a las ${horaFormateada} ha sido CONFIRMADA. Valor total: $${precio?.toLocaleString('es-CO')} COP. ¡Te esperamos!`;
     } else if (nuevoEstado === 'rechazada') {
-      mensaje = `Hola ${nombre}, lamentamos informarte que tu reserva para ${servicio} el día ${fecha} a las ${hora} ha sido RECHAZADA. Por favor contacta con nosotros para más información.`;
+      mensaje = `Hola ${nombre}, lamentamos informarte que tu reserva para ${servicio} el día ${fecha} a las ${horaFormateada} ha sido RECHAZADA. Por favor contacta con nosotros para más información.`;
     }
-    
+
     const url = `https://wa.me/${numeroConCodigo}?text=${encodeURIComponent(mensaje)}`;
     window.open(url, '_blank');
   };
@@ -77,12 +77,12 @@ export const AdminPage = () => {
     navigate('/');
   };
 
-  const reservasFiltradas = filter === 'todas' 
-    ? reservas 
+  const reservasFiltradas = filter === 'todas'
+    ? reservas
     : reservas.filter(r => r.estado === filter);
 
   const getBadgeClass = (estado) => {
-    switch(estado) {
+    switch (estado) {
       case 'pendiente': return 'pendiente';
       case 'confirmada': return 'confirmada';
       case 'rechazada': return 'rechazada';
@@ -97,15 +97,14 @@ export const AdminPage = () => {
         <Button onClick={handleLogout} variant="secondary">Cerrar sesión</Button>
       </div>
 
-      {/* Pestañas */}
-      <div className="tabs">
-        <button 
+      <div className="admin-tabs">
+        <button
           className={`tab-btn ${activeTab === 'citas' ? 'active' : ''}`}
           onClick={() => setActiveTab('citas')}
         >
           📋 Citas
         </button>
-        <button 
+        <button
           className={`tab-btn ${activeTab === 'estadisticas' ? 'active' : ''}`}
           onClick={() => setActiveTab('estadisticas')}
         >
@@ -134,7 +133,7 @@ export const AdminPage = () => {
                   <p><strong>Cliente:</strong> {reserva.nombre}</p>
                   <p><strong>Teléfono:</strong> {reserva.telefono}</p>
                   <p><strong>Servicio:</strong> {reserva.servicio}</p>
-                  <p><strong>Fecha:</strong> {reserva.fecha} - {reserva.hora}</p>
+                  <p><strong>Fecha:</strong> {reserva.fecha} - {formatTo12Hour(reserva.hora)}</p> {/* 👈 formato 12h */}
                   <p><strong>Precio:</strong> ${reserva.precio?.toLocaleString('es-CO')} COP</p>
                   <p>
                     <strong>Estado:</strong>{' '}
