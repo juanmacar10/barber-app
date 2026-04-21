@@ -4,8 +4,7 @@ import { auth } from "../services/firebase";
 
 
 
-
-const AuthContext = createContext();
+const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
@@ -27,4 +26,5 @@ export const AuthProvider = ({ children }) => {
     )
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => useContext(AuthContext);
