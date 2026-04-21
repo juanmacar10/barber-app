@@ -83,3 +83,45 @@
         margin-top: 1rem;
     }
 }
+
+// boton de reserva
+.reserve-now-btn {
+    display: block;
+    margin: 0 auto;
+    margin-top: 2rem;
+    padding: 1rem 2rem;
+    font-size: 1.2rem;
+    font-weight: bold;
+    background-color: $black;
+    color: $bone;
+    border: none;
+    border-radius: 3rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    animation: pulse 1.5s infinite; // animación de pulso
+
+    &:hover {
+        transform: scale(1.05);
+        background-color: darken($black, 10%);
+        box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+        animation: none; // detener el pulso al hacer hover
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    50% {
+        transform: scale(1.03);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+}

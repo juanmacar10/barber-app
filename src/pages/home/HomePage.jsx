@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import './HomePage.scss';
+import { useNavigate } from 'react-router-dom';
 
 export const HomePage = () => {
+  //hook de navegación
+  const navigate = useNavigate();
   const [selectedDate, setSelectedDate] = useState(() => {
     // Fecha actual en formato YYYY-MM-DD
     const today = new Date();
@@ -77,6 +80,9 @@ export const HomePage = () => {
           ℹ️ <strong>Nota informativa:</strong> Las horas mostradas ya están reservadas. Por favor, elige una hora diferente en el formulario de reserva.
         </div>
       </div>
+      <button className="reserve-now-btn" onClick={() => navigate('/reservar')}>
+        ✂️ Reservar ahora ✂️
+      </button>
     </div>
   );
 };
