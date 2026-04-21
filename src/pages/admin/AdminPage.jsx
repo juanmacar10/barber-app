@@ -1,17 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { collection, onSnapshot, updateDoc, doc } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../services/firebase';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/button/Button';
-import './AdminPage.scss'; // importamos los estilos
+import './AdminPage.scss';
 
 export const AdminPage = () => {
   const [reservas, setReservas] = useState([]);
   const [filter, setFilter] = useState('todas');
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const now = new Date();
+    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  });
   const navigate = useNavigate();
 
+  // Escuchar reservas en tiempo real
   useEffect(() => {
     const unsubscribe = onSnapshot(collection(db, 'reservas'), (snapshot) => {
       const reservasData = snapshot.docs.map(doc => ({
@@ -22,6 +27,21 @@ export const AdminPage = () => {
     });
     return () => unsubscribe();
   }, []);
+
+  // Calcular estadísticas mensuales con useMemo (sin efecto secundario)
+  const monthStats = useMemo(() => {
+    const [year, month] = selectedMonth.split('-');
+    const startDate = new Date(parseInt(year), parseInt(month) - 1, 1);
+    const endDate = new Date(parseInt(year), parseInt(month), 0);
+    const startStr = startDate.toISOString().split('T')[0];
+    const endStr = endDate.toISOString().split('T')[0];
+
+    const confirmedInMonth = reservas.filter(r =>
+      r.estado === 'confirmada' && r.fecha >= startStr && r.fecha <= endStr
+    );
+    const count = confirmedInMonth.length;
+    return { count, commission: count * 1000 };
+  }, [selectedMonth, reservas]);
 
   const sendWhatsApp = (reserva, nuevoEstado) => {
     const { telefono, nombre, servicio, fecha, hora, precio } = reserva;
@@ -59,7 +79,6 @@ export const AdminPage = () => {
     ? reservas
     : reservas.filter(r => r.estado === filter);
 
-  // Función para obtener la clase del badge según estado
   const getBadgeClass = (estado) => {
     switch (estado) {
       case 'pendiente': return 'pendiente';
@@ -74,6 +93,25 @@ export const AdminPage = () => {
       <div className="admin-header">
         <h1>Panel de administración</h1>
         <Button onClick={handleLogout} variant="secondary">Cerrar sesión</Button>
+      </div>
+
+      {/* Sección de estadísticas mensuales */}
+      <div className="stats-section">
+        <h2>Estadísticas mensuales</h2>
+        <div className="month-selector">
+          <label>Seleccionar mes: </label>
+          <input type="month" value={selectedMonth} onChange={(e) => setSelectedMonth(e.target.value)} />
+        </div>
+        <div className="stats-cards">
+          <div className="stat-card">
+            <h3>Cortes confirmados</h3>
+            <p className="stat-number">{monthStats.count}</p>
+          </div>
+          <div className="stat-card">
+            <h3>Comisión del socio (1k x corte)</h3>
+            <p className="stat-number">${monthStats.commission.toLocaleString('es-CO')} COP</p>
+          </div>
+        </div>
       </div>
 
       <div className="filter-bar">

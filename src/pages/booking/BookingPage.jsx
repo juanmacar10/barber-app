@@ -45,7 +45,7 @@ export const BookingPage = () => {
         createdAt: new Date()
       };
       await addDoc(collection(db, 'reservas'), reserva);
-      setSuccess('✅ Reserva creada exitosamente');
+      setSuccess('✅ Reserva creada exitosamente, recibiras un mensaje de confirmación por WhatsApp');
       setFormData({
         nombre: '',
         telefono: '',
