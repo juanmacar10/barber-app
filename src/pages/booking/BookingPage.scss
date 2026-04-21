@@ -107,3 +107,37 @@
     font-size: 0.9rem;
     color: #0c4a6e;
 }
+
+
+//horas ocupadas
+.busy-hours-info {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background-color: #fff3e0;
+    border-radius: 0.5rem;
+    font-size: 0.85rem;
+
+    p {
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
+    }
+
+    .busy-hours-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .busy-hour-badge {
+        background-color: #fee2e2;
+        color: #991b1b;
+        padding: 0.25rem 0.75rem;
+        border-radius: 2rem;
+        font-size: 0.8rem;
+    }
+
+    small {
+        color: #666;
+    }
+}

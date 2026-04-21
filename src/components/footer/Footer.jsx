@@ -8,7 +8,7 @@ export const Footer = () => {
             <div className="container footer__container">
                 <div className="footer__content">
                     <div className="footer__info">
-                        <span>Creado por Juanmacar</span>
+                        <span>Creado por @Juanmacar</span>
                         <a
                             href={instagramUrl}
                             target="_blank"

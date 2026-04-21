@@ -1,8 +1,9 @@
-import { useState } from 'react';
-import { addDoc, collection } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { addDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { db } from '../../services/firebase';
 import { Input } from '../../components/input/Input';
 import { Button } from '../../components/button/Button';
+import { formatTo12Hour } from '../../utils/formatTime';
 import './BookingPage.scss';
 
 export const BookingPage = () => {
@@ -10,14 +11,12 @@ export const BookingPage = () => {
   const PRECIO_ADICIONAL = 2000;
   const total = PRECIO_BASE + PRECIO_ADICIONAL;
 
-  // Fechas mínima (hoy) y máxima (mañana)
   const today = new Date();
   const tomorrow = new Date(today);
   tomorrow.setDate(today.getDate() + 1);
   const minDate = today.toISOString().split('T')[0];
   const maxDate = tomorrow.toISOString().split('T')[0];
 
-  // Calcular hora mínima para hoy (actual + 30 minutos)
   const getMinTimeForToday = () => {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 30);
@@ -36,18 +35,43 @@ export const BookingPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
+  const [busyHours, setBusyHours] = useState([]); // 👈 horas ocupadas
+  const [fetchingHours, setFetchingHours] = useState(false);
+
+  // Consultar horas ocupadas cuando cambia la fecha
+  useEffect(() => {
+    const fetchBusyHours = async () => {
+      if (!formData.fecha) return;
+      setFetchingHours(true);
+      try {
+        const q = query(
+          collection(db, 'reservas'),
+          where('fecha', '==', formData.fecha),
+          where('estado', 'in', ['pendiente', 'confirmada'])
+        );
+        const snapshot = await getDocs(q);
+        const hours = snapshot.docs.map(doc => doc.data().hora);
+        const uniqueHours = [...new Set(hours)].sort();
+        setBusyHours(uniqueHours);
+      } catch (err) {
+        console.error('Error al consultar horas ocupadas:', err);
+      } finally {
+        setFetchingHours(false);
+      }
+    };
+    fetchBusyHours();
+  }, [formData.fecha]);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Calcular el mínimo de hora según la fecha seleccionada
   const getMinTime = () => {
     if (!formData.fecha) return undefined;
     if (formData.fecha === minDate) {
       return getMinTimeForToday();
     }
-    return undefined; // mañana sin restricción
+    return undefined;
   };
 
   const handleSubmit = async (e) => {
@@ -62,14 +86,13 @@ export const BookingPage = () => {
       return;
     }
 
-    // Validar fecha (solo hoy o mañana)
     if (formData.fecha < minDate || formData.fecha > maxDate) {
       setError(`Solo puedes reservar para hoy (${minDate}) o mañana (${maxDate})`);
       setLoading(false);
       return;
     }
 
-    // Validar hora si la fecha es hoy
+    // Validar hora para hoy
     if (formData.fecha === minDate) {
       const minTime = getMinTimeForToday();
       if (formData.hora < minTime) {
@@ -77,6 +100,16 @@ export const BookingPage = () => {
         setLoading(false);
         return;
       }
+    }
+
+    // Validar que la hora no esté ocupada
+    if (busyHours.includes(formData.hora)) {
+      setError(`La hora ${formatTo12Hour(formData.hora)} ya está ocupada. Por favor elige otra.`);
+      setLoading(false);
+      setTimeout(() => {
+        setError('');
+      }, 3000);
+      return;
     }
 
     try {
@@ -95,6 +128,7 @@ export const BookingPage = () => {
         fecha: '',
         hora: ''
       });
+      setBusyHours([]); // limpiar horas ocupadas
     } catch (err) {
       console.error(err);
       setError('❌ Error al guardar la reserva');
@@ -161,16 +195,33 @@ export const BookingPage = () => {
           max={maxDate}
           required
         />
-        <Input
-          label="Hora"
-          name="hora"
-          type="time"
-          value={formData.hora}
-          onChange={handleChange}
-          placeholder="10:00"
-          min={getMinTime()}
-          required
-        />
+
+        <div className="input-group">
+          <label className="input-group__label">Hora</label>
+          <input
+            type="time"
+            name="hora"
+            value={formData.hora}
+            onChange={handleChange}
+            min={getMinTime()}
+            className="input-group__field"
+            required
+          />
+          {fetchingHours && <small>Consultando horas ocupadas...</small>}
+          {busyHours.length > 0 && (
+            <div className="busy-hours-info">
+              <p><strong>Horas no disponibles para esta fecha:</strong></p>
+              <div className="busy-hours-list">
+                {busyHours.map(hour => (
+                  <span key={hour} className="busy-hour-badge">
+                    🕒 {formatTo12Hour(hour)}
+                  </span>
+                ))}
+              </div>
+              <small>Por favor, elige una hora diferente.</small>
+            </div>
+          )}
+        </div>
 
         <div className="messages">
           {error && <div className="error">{error}</div>}
