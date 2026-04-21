@@ -5,7 +5,7 @@ import { signOut } from 'firebase/auth';
 import { auth } from '../../services/firebase';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/button/Button';
-import { formatTo12Hour } from '../../utils/formatTime'; 
+import { formatTo12Hour } from '../../utils/formatTime';
 import './AdminPage.scss';
 
 export const AdminPage = () => {
@@ -40,13 +40,13 @@ export const AdminPage = () => {
       r.estado === 'confirmada' && r.fecha >= startStr && r.fecha <= endStr
     );
     const count = confirmedInMonth.length;
-    const gananciaBarbero = count * 11000;
-    return { count, commission: count * 1000, gananciaBarbero };
+    const gananciaBarbero = count * 12000;
+    return { count, gananciaBarbero };
   }, [selectedMonth, reservas]);
 
   const sendWhatsApp = (reserva, nuevoEstado) => {
     const { telefono, nombre, servicio, fecha, hora, precio } = reserva;
-    const horaFormateada = formatTo12Hour(hora); // 👈 formato 12h para el mensaje
+    const horaFormateada = formatTo12Hour(hora);
     const numeroLimpio = telefono.replace(/\D/g, '');
     const numeroConCodigo = numeroLimpio.startsWith('57') ? numeroLimpio : `57${numeroLimpio}`;
 
@@ -133,7 +133,7 @@ export const AdminPage = () => {
                   <p><strong>Cliente:</strong> {reserva.nombre}</p>
                   <p><strong>Teléfono:</strong> {reserva.telefono}</p>
                   <p><strong>Servicio:</strong> {reserva.servicio}</p>
-                  <p><strong>Fecha:</strong> {reserva.fecha} - {formatTo12Hour(reserva.hora)}</p> {/* 👈 formato 12h */}
+                  <p><strong>Fecha:</strong> {reserva.fecha} - {formatTo12Hour(reserva.hora)}</p>
                   <p><strong>Precio:</strong> ${reserva.precio?.toLocaleString('es-CO')} COP</p>
                   <p>
                     <strong>Estado:</strong>{' '}
@@ -173,10 +173,6 @@ export const AdminPage = () => {
             <div className="stat-card">
               <h3>Cortes confirmados</h3>
               <p className="stat-number">{monthStats.count}</p>
-            </div>
-            <div className="stat-card">
-              <h3>Comisión del socio (1k x corte)</h3>
-              <p className="stat-number">${monthStats.commission.toLocaleString('es-CO')} COP</p>
             </div>
             <div className="stat-card">
               <h3>Ganancia del barbero (11k x corte)</h3>
