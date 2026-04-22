@@ -110,7 +110,12 @@ export const AdminPage = () => {
     ? reservas
     : reservas.filter(r => r.estado === filter);
 
-  const cortesARealizar = reservas.filter(r => r.estado === 'confirmada');
+  const cortesARealizar = reservas
+    .filter(r => r.estado === 'confirmada')
+    .sort((a, b) => {
+      if (a.fecha !== b.fecha) return a.fecha.localeCompare(b.fecha);
+      return a.hora.localeCompare(b.hora);
+    });
 
   const getBadgeClass = (estado) => {
     switch (estado) {
@@ -208,6 +213,7 @@ export const AdminPage = () => {
         </>
       )}
 
+      {/* Cortes a realizar */}
       {activeTab === 'cortes' && (
         <div className="reservas-grid">
           {cortesARealizar.length === 0 ? (
@@ -234,6 +240,7 @@ export const AdminPage = () => {
         </div>
       )}
 
+      {/* Estadísticas */}
       {activeTab === 'estadisticas' && (
         <div className="stats-section">
           <h2>Estadísticas mensuales</h2>
