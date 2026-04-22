@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from '../../components/button/Button';
 import { formatTo12Hour } from '../../utils/formatTime';
 import './AdminPage.scss';
+import { StatsChart } from '../../components/stats/StatsChart';
 
 export const AdminPage = () => {
   const [reservas, setReservas] = useState([]);
@@ -41,7 +42,7 @@ export const AdminPage = () => {
       r.estado === 'finalizada' && r.fecha >= startStr && r.fecha <= endStr
     );
     const count = finalizedInMonth.length;
-    const gananciaBarbero = count * 11000;
+    const gananciaBarbero = count * 12000;
     return { count, gananciaBarbero };
   }, [selectedMonth, reservas]);
 
@@ -250,6 +251,7 @@ export const AdminPage = () => {
               <p className="stat-number">${monthStats.gananciaBarbero.toLocaleString('es-CO')} COP</p>
             </div>
           </div>
+          <StatsChart selectedMonth={selectedMonth} reservas={reservas} />
         </div>
       )}
     </div>

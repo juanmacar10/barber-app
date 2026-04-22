@@ -121,7 +121,7 @@
 
     &.pendiente {
       background-color: #fef3c7;
-      color: #e0e307;
+      color: #d2b307;
     }
 
     &.confirmada {
@@ -242,25 +242,22 @@
   border-radius: 0.5rem;
   font-weight: 500;
   animation: slideIn 0.3s ease-out;
-
+  
   &.success {
     background-color: #d1fae5;
     color: #065f46;
     border-left: 4px solid #10b981;
   }
-
   &.warning {
     background-color: #fed7aa;
     color: #9b2c1d;
     border-left: 4px solid #f59e0b;
   }
-
   &.error {
     background-color: #fee2e2;
     color: #991b1b;
     border-left: 4px solid #ef4444;
   }
-
   &.info {
     background-color: #dbeafe;
     color: #1e40af;
@@ -273,7 +270,6 @@
     opacity: 0;
     transform: translateY(-10px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
