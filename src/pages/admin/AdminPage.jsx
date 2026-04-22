@@ -127,7 +127,7 @@ export const AdminPage = () => {
     <div className="container admin-page">
       <div className="admin-header">
         <h1>Panel de administración</h1>
-        <Button onClick={handleLogout} variant="secondary">Cerrar sesión</Button>
+        <Button onClick={handleLogout} variant="danger">Cerrar sesión</Button>
       </div>
 
       {notification.message && (
@@ -191,7 +191,7 @@ export const AdminPage = () => {
                     {reserva.estado === 'pendiente' && (
                       <>
                         <Button onClick={() => handleStatusChange(reserva.id, 'confirmada', reserva)}>Confirmar</Button>
-                        <Button onClick={() => handleStatusChange(reserva.id, 'rechazada', reserva)} variant="secondary">Rechazar</Button>
+                        <Button onClick={() => handleStatusChange(reserva.id, 'rechazada', reserva)} variant="danger">Rechazar</Button>
                       </>
                     )}
                     {reserva.estado === 'confirmada' && (
@@ -221,10 +221,10 @@ export const AdminPage = () => {
                 <p><strong>Fecha:</strong> {reserva.fecha} - {formatTo12Hour(reserva.hora)}</p>
                 <p><strong>Precio:</strong> ${reserva.precio?.toLocaleString('es-CO')} COP</p>
                 <div className="acciones">
-                  <Button onClick={() => handleStatusChange(reserva.id, 'finalizada', reserva)}>
+                  <Button onClick={() => handleStatusChange(reserva.id, 'finalizada', reserva)}> 
                     Finalizado (asistió)
                   </Button>
-                  <Button onClick={() => handleStatusChange(reserva.id, 'incumplida', reserva)} variant="secondary">
+                  <Button onClick={() => handleStatusChange(reserva.id, 'incumplida', reserva)} variant="danger">
                     Incumplimiento (no asistió)
                   </Button>
                 </div>
@@ -247,7 +247,7 @@ export const AdminPage = () => {
               <p className="stat-number">{monthStats.count}</p>
             </div>
             <div className="stat-card">
-              <h3>Ganancia del barbero (11k x corte finalizado)</h3>
+              <h3>Ganancias</h3>
               <p className="stat-number">${monthStats.gananciaBarbero.toLocaleString('es-CO')} COP</p>
             </div>
           </div>

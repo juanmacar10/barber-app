@@ -27,12 +27,24 @@
             color: white;
         }
     }
+
+    &--danger {
+        background-color: $gray-light;
+        color: $black;
+
+        &:hover {
+            background-color: rgb(239, 54, 54);
+            color: $bone;
+        }
+    }
+
+
 }
 
 //responsive
 @media (max-width: 768px) {
-  .btn {
-    width: 100%; // botones de ancho completo en móvil
-    text-align: center;
-  }
+    .btn {
+        width: 100%; // botones de ancho completo en móvil
+        text-align: center;
+    }
 }

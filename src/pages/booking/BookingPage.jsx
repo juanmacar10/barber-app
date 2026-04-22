@@ -11,12 +11,27 @@ export const BookingPage = () => {
   const PRECIO_ADICIONAL = 2000;
   const total = PRECIO_BASE + PRECIO_ADICIONAL;
 
-  const today = new Date();
-  const tomorrow = new Date(today);
-  tomorrow.setDate(today.getDate() + 1);
-  const minDate = today.toISOString().split('T')[0];
-  const maxDate = tomorrow.toISOString().split('T')[0];
+  // Función para obtener fecha local en formato YYYY-MM-DD
+  const getLocalDateStr = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
+  // Fechas mínima (hoy) y máxima (mañana) en local
+  const todayDate = new Date();
+  const todayStr = getLocalDateStr(todayDate);
+  const tomorrowDate = new Date(todayDate);
+  tomorrowDate.setDate(todayDate.getDate() + 1);
+  const tomorrowStr = getLocalDateStr(tomorrowDate);
+  const minDate = todayStr;
+  const maxDate = tomorrowStr;
+
+  // Función para saber si una fecha es hoy (comparación local)
+  const isToday = (dateStr) => dateStr === todayStr;
+
+  // Calcular hora mínima para hoy (actual + 30 minutos)
   const getMinTimeForToday = () => {
     const now = new Date();
     now.setMinutes(now.getMinutes() + 30);
@@ -35,7 +50,7 @@ export const BookingPage = () => {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState('');
   const [error, setError] = useState('');
-  const [busyHours, setBusyHours] = useState([]); // 👈 horas ocupadas
+  const [busyHours, setBusyHours] = useState([]);
   const [fetchingHours, setFetchingHours] = useState(false);
 
   // Consultar horas ocupadas cuando cambia la fecha
@@ -66,12 +81,13 @@ export const BookingPage = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  // Calcular hora mínima dinámica para el input time (solo para hoy)
   const getMinTime = () => {
     if (!formData.fecha) return undefined;
-    if (formData.fecha === minDate) {
+    if (isToday(formData.fecha)) {
       return getMinTimeForToday();
     }
-    return undefined;
+    return undefined; // Para mañana, sin restricción
   };
 
   const handleSubmit = async (e) => {
@@ -86,17 +102,19 @@ export const BookingPage = () => {
       return;
     }
 
+    // Validar que la fecha sea hoy o mañana
     if (formData.fecha < minDate || formData.fecha > maxDate) {
       setError(`Solo puedes reservar para hoy (${minDate}) o mañana (${maxDate})`);
       setLoading(false);
       return;
     }
 
-    // Validar hora para hoy
-    if (formData.fecha === minDate) {
+    // Validar hora solo si la fecha es hoy
+    if (isToday(formData.fecha)) {
       const minTime = getMinTimeForToday();
       if (formData.hora < minTime) {
-        setError(`Para hoy, solo puedes reservar a partir de las ${minTime} (margen de 30 minutos).`);
+        const minTimeFormatted = formatTo12Hour(minTime);
+        setError(`Para hoy, solo puedes reservar a partir de las ${minTimeFormatted} (margen de 30 minutos).`);
         setLoading(false);
         return;
       }
@@ -106,9 +124,7 @@ export const BookingPage = () => {
     if (busyHours.includes(formData.hora)) {
       setError(`La hora ${formatTo12Hour(formData.hora)} ya está ocupada. Por favor elige otra.`);
       setLoading(false);
-      setTimeout(() => {
-        setError('');
-      }, 3000);
+      setTimeout(() => setError(''), 3000);
       return;
     }
 
@@ -121,6 +137,7 @@ export const BookingPage = () => {
       };
       await addDoc(collection(db, 'reservas'), reserva);
       setSuccess('✅ Reserva creada exitosamente, recibirás un mensaje de confirmación por WhatsApp');
+      setTimeout(() => setSuccess(''), 3000);
       setFormData({
         nombre: '',
         telefono: '',
@@ -128,7 +145,7 @@ export const BookingPage = () => {
         fecha: '',
         hora: ''
       });
-      setBusyHours([]); // limpiar horas ocupadas
+      setBusyHours([]);
     } catch (err) {
       console.error(err);
       setError('❌ Error al guardar la reserva');
@@ -190,7 +207,7 @@ export const BookingPage = () => {
           type="date"
           value={formData.fecha}
           onChange={handleChange}
-          placeholder="2025-10-25"
+          placeholder="YYYY-MM-DD"
           min={minDate}
           max={maxDate}
           required
